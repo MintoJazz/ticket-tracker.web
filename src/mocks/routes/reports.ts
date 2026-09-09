@@ -20,7 +20,6 @@ export const reportHandlers = [
 
   http.get('/reports/ranking', () => {
     const userStats = db.users.map(user => {
-      // Find all resolved/closed tickets assigned to this user
       const resolvedCount = db.tickets.filter(
         t => t.assignee_id === user.id && (t.status === 'resolved' || t.status === 'closed')
       ).length;
