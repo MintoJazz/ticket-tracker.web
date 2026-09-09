@@ -1,0 +1,684 @@
+openapi: 3.0.3
+info:
+  title: Ticket Tracker API
+  description: >
+    Contrato da API do sistema de gestão de tickets (workspaces, tickets,
+    worklogs, autenticação e relatórios). Gerado a partir dos handlers MSW
+    e schemas Zod do projeto.
+  version: "1.0.0"
+
+servers:
+  - url: /
+    description: Base path relativo (mock via MSW)
+
+tags:
+  - name: Auth
+  - name: Workspaces
+  - name: Tickets
+  - name: Worklogs
+  - name: Reports
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ==========================================
+  # AUTH
+  # ==========================================
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Autentica um usuário
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login efetuado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+                    example: mock-token-u-1-1725900000000
+        '400':
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Credenciais inválidas / usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Cria um novo usuário
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+        '400':
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '409':
+          description: E-mail já cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Retorna o usuário autenticado a partir do token
+      responses:
+        '200':
+          description: Usuário atual
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Token ausente, inválido ou usuário inexistente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ==========================================
+  # WORKSPACES
+  # ==========================================
+  /workspaces:
+    get:
+      tags: [Workspaces]
+      summary: Lista todos os workspaces
+      responses:
+        '200':
+          description: Lista de workspaces
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workspaces:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Workspace'
+
+  /workspaces/{id}:
+    get:
+      tags: [Workspaces]
+      summary: Busca um workspace por ID
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      responses:
+        '200':
+          description: Workspace encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workspace:
+                    $ref: '#/components/schemas/Workspace'
+        '404':
+          description: Workspace não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ==========================================
+  # TICKETS
+  # ==========================================
+  /tickets:
+    get:
+      tags: [Tickets]
+      summary: Lista tickets, com filtros opcionais
+      parameters:
+        - name: workspace_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/TicketStatus'
+      responses:
+        '200':
+          description: Lista de tickets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tickets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Ticket'
+    post:
+      tags: [Tickets]
+      summary: Cria um novo ticket
+      description: >
+        O `reporter_id` é inferido a partir do token Bearer (`mock-token-{userId}-...`).
+        Se ausente, assume `u-1` (usuário admin padrão do mock).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTicketRequest'
+      responses:
+        '201':
+          description: Ticket criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket:
+                    $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /tickets/{id}:
+    get:
+      tags: [Tickets]
+      summary: Busca um ticket por ID
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      responses:
+        '200':
+          description: Ticket encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket:
+                    $ref: '#/components/schemas/Ticket'
+        '404':
+          description: Ticket não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags: [Tickets]
+      summary: Atualiza parcialmente um ticket
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTicketRequest'
+      responses:
+        '200':
+          description: Ticket atualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket:
+                    $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: Ticket não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ==========================================
+  # WORKLOGS
+  # ==========================================
+  /tickets/{id}/worklogs:
+    get:
+      tags: [Worklogs]
+      summary: Lista os worklogs de um ticket
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      responses:
+        '200':
+          description: Lista de worklogs do ticket
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  worklogs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Worklog'
+    post:
+      tags: [Worklogs]
+      summary: Cria um worklog em um ticket
+      description: >
+        O `user_id` é inferido a partir do token Bearer (`mock-token-{userId}-...`).
+        Se ausente, assume `u-1`.
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorklogRequest'
+      responses:
+        '201':
+          description: Worklog criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  worklog:
+                    $ref: '#/components/schemas/Worklog'
+        '400':
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: Ticket não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /worklogs/{id}:
+    patch:
+      tags: [Worklogs]
+      summary: Atualiza um worklog (ex. encerramento)
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorklogRequest'
+      responses:
+        '200':
+          description: Worklog atualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  worklog:
+                    $ref: '#/components/schemas/Worklog'
+        '400':
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: Worklog não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ==========================================
+  # REPORTS
+  # ==========================================
+  /reports/dashboard:
+    get:
+      tags: [Reports]
+      summary: Métricas agregadas de tickets
+      responses:
+        '200':
+          description: Métricas do dashboard
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metrics:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 12
+                      open:
+                        type: integer
+                        example: 5
+                      in_progress:
+                        type: integer
+                        example: 3
+                      resolved:
+                        type: integer
+                        description: Soma de tickets `resolved` + `closed`
+                        example: 4
+
+  /reports/ranking:
+    get:
+      tags: [Reports]
+      summary: Ranking de usuários por tickets resolvidos
+      responses:
+        '200':
+          description: Ranking ordenado do maior para o menor `resolved_count`
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ranking:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            name:
+                              type: string
+                            email:
+                              type: string
+                        resolved_count:
+                          type: integer
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: >
+        Token mockado no formato `mock-token-{userId}-{timestamp}`.
+        Não é um JWT real — apenas simula autenticação no MSW.
+
+  parameters:
+    IdPathParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    InternalServerError:
+      description: Erro interno inesperado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    # ---------- Entidades ----------
+    UserRole:
+      type: string
+      enum: [admin, tech, user]
+
+    User:
+      type: object
+      required: [id, name, email, role, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/UserRole'
+        avatar_url:
+          type: string
+          format: uri
+        created_at:
+          type: string
+          format: date-time
+
+    Workspace:
+      type: object
+      required: [id, name, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    TicketStatus:
+      type: string
+      enum: [open, in_progress, resolved, closed]
+
+    TicketPriority:
+      type: string
+      enum: [low, medium, high, urgent]
+
+    Ticket:
+      type: object
+      required: [id, workspace_id, title, status, priority, reporter_id, created_at, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/TicketStatus'
+        priority:
+          $ref: '#/components/schemas/TicketPriority'
+        assignee_id:
+          type: string
+          format: uuid
+        reporter_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Worklog:
+      type: object
+      required: [id, ticket_id, user_id, started_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        ticket_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        description:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+
+    # ---------- Requests ----------
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+
+    RegisterRequest:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        role:
+          $ref: '#/components/schemas/UserRole'
+          default: user
+
+    CreateTicketRequest:
+      type: object
+      required: [workspace_id, title]
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        priority:
+          $ref: '#/components/schemas/TicketPriority'
+          default: medium
+        assignee_id:
+          type: string
+          format: uuid
+
+    UpdateTicketRequest:
+      type: object
+      description: Todos os campos são opcionais (patch parcial)
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/TicketStatus'
+        priority:
+          $ref: '#/components/schemas/TicketPriority'
+        assignee_id:
+          type: string
+          format: uuid
+
+    CreateWorklogRequest:
+      type: object
+      properties:
+        description:
+          type: string
+
+    UpdateWorklogRequest:
+      type: object
+      required: [ended_at]
+      properties:
+        ended_at:
+          type: string
+          format: date-time
+        description:
+          type: string
+
+    # ---------- Erros ----------
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Ticket not found
+
+    ValidationErrorResponse:
+      type: object
+      description: Retornado quando o `safeParse` do Zod falha
+      properties:
+        error:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              path:
+                type: array
+                items:
+                  type: string
+              message:
+                type: string
