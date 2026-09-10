@@ -1,13 +1,14 @@
 import { http, HttpResponse } from 'msw';
 import { db } from '../db';
 import { CreateWorklogSchema, UpdateWorklogSchema } from '../../schemas';
+import type { GetWorklogsResponse, WorklogResponse } from '@/types';
 import { withAuth } from '../middleware';
 
 export const worklogHandlers = [
   http.get('/tickets/:id/worklogs', withAuth(({ params }) => {
     const { id } = params;
     const worklogs = db.worklogs.filter(w => w.ticket_id === id);
-    return HttpResponse.json({ worklogs });
+    return HttpResponse.json<GetWorklogsResponse>({ worklogs });
   })),
 
   http.post('/tickets/:id/worklogs', withAuth(async ({ request, params, user }) => {
@@ -37,7 +38,7 @@ export const worklogHandlers = [
       db.worklogs.push(newWorklog);
       db.save();
 
-      return HttpResponse.json({ worklog: newWorklog }, { status: 201 });
+      return HttpResponse.json<WorklogResponse>({ worklog: newWorklog }, { status: 201 });
     } catch (e) {
       console.error(e);
       return HttpResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -68,7 +69,7 @@ export const worklogHandlers = [
       db.worklogs[worklogIndex] = updatedWorklog;
       db.save();
 
-      return HttpResponse.json({ worklog: updatedWorklog });
+      return HttpResponse.json<WorklogResponse>({ worklog: updatedWorklog });
     } catch (e) {
       console.error(e);
       return HttpResponse.json({ error: 'Internal Server Error' }, { status: 500 });

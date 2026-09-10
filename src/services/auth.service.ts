@@ -1,6 +1,6 @@
 import { api, request } from "@/lib/api";
 import { LoginSchema } from "@/schemas";
-import type { User } from "@/types";
+import type { LoginResponse, AuthUserResponse } from "@/types";
 import { failed, success } from "@/types/result";
 
 export const authService = {
@@ -8,7 +8,7 @@ export const authService = {
         const parsed = LoginSchema.safeParse(formData)
         if (!parsed.success) return failed(parsed.error)
 
-        const response = await request(api.post<{ user: User }>(
+        const response = await request(api.post<LoginResponse>(
             "/auth/login",
             parsed.data
         ))
@@ -17,7 +17,7 @@ export const authService = {
         
         return success(response.data.user)
     },
-    getUser: async () => await request(api.get<{ user: User }>("/auth/me")),
+    getUser: async () => await request(api.get<AuthUserResponse>("/auth/me")),
     
     logout: async (): Promise<void> => {
         await request(api.post("/auth/logout"));

@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { db } from '../db';
 import { CreateTicketSchema, UpdateTicketSchema } from '../../schemas';
+import type { GetTicketsResponse, TicketResponse } from '@/types';
 import { withAuth } from '../middleware';
 
 export const ticketHandlers = [
@@ -17,7 +18,7 @@ export const ticketHandlers = [
       tickets = tickets.filter(t => t.status === status);
     }
 
-    return HttpResponse.json({ tickets });
+    return HttpResponse.json<GetTicketsResponse>({ tickets });
   })),
 
   http.post('/tickets', withAuth(async ({ request, user }) => {
@@ -45,7 +46,7 @@ export const ticketHandlers = [
       db.tickets.push(newTicket);
       db.save();
 
-      return HttpResponse.json({ ticket: newTicket }, { status: 201 });
+      return HttpResponse.json<TicketResponse>({ ticket: newTicket }, { status: 201 });
     } catch (e) {
       console.error(e);
       return HttpResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -60,7 +61,7 @@ export const ticketHandlers = [
       return HttpResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    return HttpResponse.json({ ticket });
+    return HttpResponse.json<TicketResponse>({ ticket });
   })),
 
   http.patch('/tickets/:id', withAuth(async ({ request, params }) => {
@@ -88,7 +89,7 @@ export const ticketHandlers = [
       db.tickets[ticketIndex] = updatedTicket;
       db.save();
 
-      return HttpResponse.json({ ticket: updatedTicket });
+      return HttpResponse.json<TicketResponse>({ ticket: updatedTicket });
     } catch (e) {
       console.error(e);
       return HttpResponse.json({ error: 'Internal Server Error' }, { status: 500 });

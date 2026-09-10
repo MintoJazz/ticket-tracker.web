@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { db } from '../db';
 import { withAuth } from '../middleware';
+import type { DashboardResponse, RankingResponse } from '@/types';
 
 export const reportHandlers = [
   http.get('/reports/dashboard', withAuth(() => {
@@ -9,7 +10,7 @@ export const reportHandlers = [
     const inProgressTickets = db.tickets.filter(t => t.status === 'in_progress').length;
     const resolvedTickets = db.tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length;
 
-    return HttpResponse.json({
+    return HttpResponse.json<DashboardResponse>({
       metrics: {
         total: totalTickets,
         open: openTickets,
@@ -37,6 +38,6 @@ export const reportHandlers = [
 
     const ranking = [...userStats].sort((a, b) => b.resolved_count - a.resolved_count);
 
-    return HttpResponse.json({ ranking });
+    return HttpResponse.json<RankingResponse>({ ranking });
   })),
 ];

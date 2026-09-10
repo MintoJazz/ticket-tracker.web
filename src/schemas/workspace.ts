@@ -6,3 +6,11 @@ export const WorkspaceSchema = z.object({
     description: z.string().optional(),
     created_at: z.string().datetime(),
 });
+
+export const WorkspaceResponseSchema = z.object({
+    workspace: WorkspaceSchema,
+});
+
+export const GetWorkspacesResponseSchema = z.object({
+    workspaces: z.array(WorkspaceSchema),
+});

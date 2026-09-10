@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { db } from '../db';
 import { LoginSchema } from '../../schemas';
+import type { LoginResponse, LogoutResponse, AuthUserResponse } from '@/types';
 import { withAuth } from '../middleware';
 
 const generateToken = (userId: string) => `mock-token-${userId}-${Date.now()}`;
@@ -23,7 +24,7 @@ export const authHandlers = [
 
       const token = generateToken(user.id);
 
-      return HttpResponse.json(
+      return HttpResponse.json<LoginResponse>(
         { user },
         {
           status: 200,
@@ -39,7 +40,7 @@ export const authHandlers = [
   }),
 
   http.post('/auth/logout', () => {
-    return HttpResponse.json(
+    return HttpResponse.json<LogoutResponse>(
       { message: 'Logged out' },
       {
         status: 200,
@@ -51,6 +52,6 @@ export const authHandlers = [
   }),
 
   http.get('/auth/me', withAuth(({ user }) => {
-    return HttpResponse.json({ user });
+    return HttpResponse.json<AuthUserResponse>({ user });
   })),
 ];

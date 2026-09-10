@@ -28,3 +28,11 @@ export const UpdateTicketSchema = z.object({
     priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
     assignee_id: z.string().uuid().optional(),
 });
+
+export const TicketResponseSchema = z.object({
+    ticket: TicketSchema,
+});
+
+export const GetTicketsResponseSchema = z.object({
+    tickets: z.array(TicketSchema),
+});

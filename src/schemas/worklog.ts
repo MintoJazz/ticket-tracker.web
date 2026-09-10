@@ -17,3 +17,11 @@ export const UpdateWorklogSchema = z.object({
     ended_at: z.string().datetime(),
     description: z.string().optional(),
 });
+
+export const WorklogResponseSchema = z.object({
+    worklog: WorklogSchema,
+});
+
+export const GetWorklogsResponseSchema = z.object({
+    worklogs: z.array(WorklogSchema),
+});

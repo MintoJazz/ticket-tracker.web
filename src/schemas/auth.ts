@@ -43,3 +43,15 @@ export const AcceptInviteResponseSchema = z.object({
     user: UserSchema,
     token: z.string()
 });
+
+export const LoginResponseSchema = z.object({
+    user: UserSchema,
+});
+
+export const AuthUserResponseSchema = z.object({
+    user: UserSchema,
+});
+
+export const LogoutResponseSchema = z.object({
+    message: z.string(),
+});
