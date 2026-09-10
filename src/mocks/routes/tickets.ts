@@ -1,15 +1,15 @@
 import { http, HttpResponse } from 'msw';
 import { db } from '../db';
 import { CreateTicketSchema, UpdateTicketSchema } from '../../schemas';
+import { withAuth } from '../middleware';
 
 export const ticketHandlers = [
-  http.get('/tickets', ({ request }) => {
+  http.get('/tickets', withAuth(({ request }) => {
     const url = new URL(request.url);
     const workspaceId = url.searchParams.get('workspace_id');
     const status = url.searchParams.get('status');
 
     let tickets = [...db.tickets];
-
     if (workspaceId) {
       tickets = tickets.filter(t => t.workspace_id === workspaceId);
     }
@@ -18,16 +18,13 @@ export const ticketHandlers = [
     }
 
     return HttpResponse.json({ tickets });
-  }),
+  })),
 
-  http.post('/tickets', async ({ request }) => {
+  http.post('/tickets', withAuth(async ({ request, user }) => {
     try {
-      const authHeader = request.headers.get('Authorization');
-      const reporterId = authHeader ? authHeader.split('-')[2] : 'u-1'; // Mocking fallback to admin user
-      
       const body = await request.json();
       const parsed = CreateTicketSchema.safeParse(body);
-      
+
       if (!parsed.success) {
         return HttpResponse.json({ error: parsed.error.issues }, { status: 400 });
       }
@@ -40,7 +37,7 @@ export const ticketHandlers = [
         status: 'open' as const,
         priority: parsed.data.priority,
         assignee_id: parsed.data.assignee_id,
-        reporter_id: reporterId,
+        reporter_id: user.id, // ID injetado automaticamente pelo middleware
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -53,9 +50,9 @@ export const ticketHandlers = [
       console.error(e);
       return HttpResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
-  }),
+  })),
 
-  http.get('/tickets/:id', ({ params }) => {
+  http.get('/tickets/:id', withAuth(({ params }) => {
     const { id } = params;
     const ticket = db.tickets.find(t => t.id === id);
 
@@ -64,9 +61,9 @@ export const ticketHandlers = [
     }
 
     return HttpResponse.json({ ticket });
-  }),
+  })),
 
-  http.patch('/tickets/:id', async ({ request, params }) => {
+  http.patch('/tickets/:id', withAuth(async ({ request, params }) => {
     try {
       const { id } = params;
       const ticketIndex = db.tickets.findIndex(t => t.id === id);
@@ -77,7 +74,7 @@ export const ticketHandlers = [
 
       const body = await request.json();
       const parsed = UpdateTicketSchema.safeParse(body);
-      
+
       if (!parsed.success) {
         return HttpResponse.json({ error: parsed.error.issues }, { status: 400 });
       }
@@ -96,5 +93,5 @@ export const ticketHandlers = [
       console.error(e);
       return HttpResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
-  }),
+  })),
 ];

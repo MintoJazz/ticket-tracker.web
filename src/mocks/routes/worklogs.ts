@@ -1,16 +1,16 @@
 import { http, HttpResponse } from 'msw';
 import { db } from '../db';
 import { CreateWorklogSchema, UpdateWorklogSchema } from '../../schemas';
+import { withAuth } from '../middleware';
 
 export const worklogHandlers = [
-  http.get('/tickets/:id/worklogs', ({ params }) => {
+  http.get('/tickets/:id/worklogs', withAuth(({ params }) => {
     const { id } = params;
     const worklogs = db.worklogs.filter(w => w.ticket_id === id);
-
     return HttpResponse.json({ worklogs });
-  }),
+  })),
 
-  http.post('/tickets/:id/worklogs', async ({ request, params }) => {
+  http.post('/tickets/:id/worklogs', withAuth(async ({ request, params, user }) => {
     try {
       const { id } = params;
       const ticketExists = db.tickets.some(t => t.id === id);
@@ -19,12 +19,9 @@ export const worklogHandlers = [
         return HttpResponse.json({ error: 'Ticket not found' }, { status: 404 });
       }
 
-      const authHeader = request.headers.get('Authorization');
-      const userId = authHeader ? authHeader.split('-')[2] : 'u-1';
-      
       const body = await request.json().catch(() => ({}));
       const parsed = CreateWorklogSchema.safeParse(body);
-      
+
       if (!parsed.success) {
         return HttpResponse.json({ error: parsed.error.issues }, { status: 400 });
       }
@@ -32,7 +29,7 @@ export const worklogHandlers = [
       const newWorklog = {
         id: `wl-${Date.now()}`,
         ticket_id: id as string,
-        user_id: userId,
+        user_id: user.id, // ID injetado automaticamente pelo middleware
         description: parsed.data.description,
         started_at: new Date().toISOString(),
       };
@@ -45,9 +42,9 @@ export const worklogHandlers = [
       console.error(e);
       return HttpResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
-  }),
+  })),
 
-  http.patch('/worklogs/:id', async ({ request, params }) => {
+  http.patch('/worklogs/:id', withAuth(async ({ request, params }) => {
     try {
       const { id } = params;
       const worklogIndex = db.worklogs.findIndex(w => w.id === id);
@@ -58,7 +55,7 @@ export const worklogHandlers = [
 
       const body = await request.json();
       const parsed = UpdateWorklogSchema.safeParse(body);
-      
+
       if (!parsed.success) {
         return HttpResponse.json({ error: parsed.error.issues }, { status: 400 });
       }
@@ -76,5 +73,5 @@ export const worklogHandlers = [
       console.error(e);
       return HttpResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
-  }),
+  })),
 ];

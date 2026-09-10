@@ -35,9 +35,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: "#/components/schemas/LoginRequest"
       responses:
-        '200':
+        "200":
           description: Login efetuado com sucesso
           content:
             application/json:
@@ -45,69 +45,94 @@ paths:
                 type: object
                 properties:
                   user:
-                    $ref: '#/components/schemas/User'
+                    $ref: "#/components/schemas/User"
                   token:
                     type: string
                     example: mock-token-u-1-1725900000000
-        '400':
+        "400":
           description: Payload inválido
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
           description: Credenciais inválidas / usuário não encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
 
-  /auth/register:
-    post:
+  # A rota /auth/register foi removida
+  # ==========================================
+  # INVITES (ONBOARDING FECHADO)
+  # ==========================================
+  /invites/{token}:
+    get:
       tags: [Auth]
-      summary: Cria um novo usuário
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RegisterRequest'
+      summary: Valida um token de convite e retorna os dados pré-preenchidos
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
-        '201':
-          description: Usuário criado com sucesso
+        "200":
+          description: Convite válido
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  email:
+                    type: string
+                    format: email
+                  workspace:
+                    $ref: "#/components/schemas/Workspace"
+                  role:
+                    $ref: "#/components/schemas/UserRole"
+        "400":
+          description: Convite expirado ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Convite não encontrado
+  /invites/accept:
+    post:
+      tags: [Auth]
+      summary: Finaliza o cadastro de um usuário convidado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcceptInviteRequest"
+      responses:
+        "201":
+          description: Usuário criado com sucesso e autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
                   user:
-                    $ref: '#/components/schemas/User'
+                    $ref: "#/components/schemas/User"
                   token:
                     type: string
-        '400':
-          description: Payload inválido
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationErrorResponse'
-        '409':
-          description: E-mail já cadastrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
+        "400":
+          description: Payload ou Token inválido
   /auth/me:
     get:
       tags: [Auth]
       summary: Retorna o usuário autenticado a partir do token
       responses:
-        '200':
+        "200":
           description: Usuário atual
           content:
             application/json:
@@ -115,13 +140,13 @@ paths:
                 type: object
                 properties:
                   user:
-                    $ref: '#/components/schemas/User'
-        '401':
+                    $ref: "#/components/schemas/User"
+        "401":
           description: Token ausente, inválido ou usuário inexistente
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   # ==========================================
   # WORKSPACES
@@ -131,7 +156,7 @@ paths:
       tags: [Workspaces]
       summary: Lista todos os workspaces
       responses:
-        '200':
+        "200":
           description: Lista de workspaces
           content:
             application/json:
@@ -141,16 +166,16 @@ paths:
                   workspaces:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Workspace'
+                      $ref: "#/components/schemas/Workspace"
 
   /workspaces/{id}:
     get:
       tags: [Workspaces]
       summary: Busca um workspace por ID
       parameters:
-        - $ref: '#/components/parameters/IdPathParam'
+        - $ref: "#/components/parameters/IdPathParam"
       responses:
-        '200':
+        "200":
           description: Workspace encontrado
           content:
             application/json:
@@ -158,13 +183,13 @@ paths:
                 type: object
                 properties:
                   workspace:
-                    $ref: '#/components/schemas/Workspace'
-        '404':
+                    $ref: "#/components/schemas/Workspace"
+        "404":
           description: Workspace não encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   # ==========================================
   # TICKETS
@@ -184,9 +209,9 @@ paths:
           in: query
           required: false
           schema:
-            $ref: '#/components/schemas/TicketStatus'
+            $ref: "#/components/schemas/TicketStatus"
       responses:
-        '200':
+        "200":
           description: Lista de tickets
           content:
             application/json:
@@ -196,7 +221,7 @@ paths:
                   tickets:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Ticket'
+                      $ref: "#/components/schemas/Ticket"
     post:
       tags: [Tickets]
       summary: Cria um novo ticket
@@ -208,9 +233,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateTicketRequest'
+              $ref: "#/components/schemas/CreateTicketRequest"
       responses:
-        '201':
+        "201":
           description: Ticket criado
           content:
             application/json:
@@ -218,24 +243,24 @@ paths:
                 type: object
                 properties:
                   ticket:
-                    $ref: '#/components/schemas/Ticket'
-        '400':
+                    $ref: "#/components/schemas/Ticket"
+        "400":
           description: Payload inválido
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationErrorResponse'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
 
   /tickets/{id}:
     get:
       tags: [Tickets]
       summary: Busca um ticket por ID
       parameters:
-        - $ref: '#/components/parameters/IdPathParam'
+        - $ref: "#/components/parameters/IdPathParam"
       responses:
-        '200':
+        "200":
           description: Ticket encontrado
           content:
             application/json:
@@ -243,26 +268,26 @@ paths:
                 type: object
                 properties:
                   ticket:
-                    $ref: '#/components/schemas/Ticket'
-        '404':
+                    $ref: "#/components/schemas/Ticket"
+        "404":
           description: Ticket não encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
     patch:
       tags: [Tickets]
       summary: Atualiza parcialmente um ticket
       parameters:
-        - $ref: '#/components/parameters/IdPathParam'
+        - $ref: "#/components/parameters/IdPathParam"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateTicketRequest'
+              $ref: "#/components/schemas/UpdateTicketRequest"
       responses:
-        '200':
+        "200":
           description: Ticket atualizado
           content:
             application/json:
@@ -270,21 +295,21 @@ paths:
                 type: object
                 properties:
                   ticket:
-                    $ref: '#/components/schemas/Ticket'
-        '400':
+                    $ref: "#/components/schemas/Ticket"
+        "400":
           description: Payload inválido
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationErrorResponse'
-        '404':
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "404":
           description: Ticket não encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
 
   # ==========================================
   # WORKLOGS
@@ -294,9 +319,9 @@ paths:
       tags: [Worklogs]
       summary: Lista os worklogs de um ticket
       parameters:
-        - $ref: '#/components/parameters/IdPathParam'
+        - $ref: "#/components/parameters/IdPathParam"
       responses:
-        '200':
+        "200":
           description: Lista de worklogs do ticket
           content:
             application/json:
@@ -306,7 +331,7 @@ paths:
                   worklogs:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Worklog'
+                      $ref: "#/components/schemas/Worklog"
     post:
       tags: [Worklogs]
       summary: Cria um worklog em um ticket
@@ -314,15 +339,15 @@ paths:
         O `user_id` é inferido a partir do token Bearer (`mock-token-{userId}-...`).
         Se ausente, assume `u-1`.
       parameters:
-        - $ref: '#/components/parameters/IdPathParam'
+        - $ref: "#/components/parameters/IdPathParam"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateWorklogRequest'
+              $ref: "#/components/schemas/CreateWorklogRequest"
       responses:
-        '201':
+        "201":
           description: Worklog criado
           content:
             application/json:
@@ -330,36 +355,36 @@ paths:
                 type: object
                 properties:
                   worklog:
-                    $ref: '#/components/schemas/Worklog'
-        '400':
+                    $ref: "#/components/schemas/Worklog"
+        "400":
           description: Payload inválido
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationErrorResponse'
-        '404':
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "404":
           description: Ticket não encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
 
   /worklogs/{id}:
     patch:
       tags: [Worklogs]
       summary: Atualiza um worklog (ex. encerramento)
       parameters:
-        - $ref: '#/components/parameters/IdPathParam'
+        - $ref: "#/components/parameters/IdPathParam"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateWorklogRequest'
+              $ref: "#/components/schemas/UpdateWorklogRequest"
       responses:
-        '200':
+        "200":
           description: Worklog atualizado
           content:
             application/json:
@@ -367,21 +392,21 @@ paths:
                 type: object
                 properties:
                   worklog:
-                    $ref: '#/components/schemas/Worklog'
-        '400':
+                    $ref: "#/components/schemas/Worklog"
+        "400":
           description: Payload inválido
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationErrorResponse'
-        '404':
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "404":
           description: Worklog não encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
 
   # ==========================================
   # REPORTS
@@ -391,7 +416,7 @@ paths:
       tags: [Reports]
       summary: Métricas agregadas de tickets
       responses:
-        '200':
+        "200":
           description: Métricas do dashboard
           content:
             application/json:
@@ -420,7 +445,7 @@ paths:
       tags: [Reports]
       summary: Ranking de usuários por tickets resolvidos
       responses:
-        '200':
+        "200":
           description: Ranking ordenado do maior para o menor `resolved_count`
           content:
             application/json:
@@ -468,7 +493,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
 
   schemas:
     # ---------- Entidades ----------
@@ -490,7 +515,7 @@ components:
           type: string
           format: email
         role:
-          $ref: '#/components/schemas/UserRole'
+          $ref: "#/components/schemas/UserRole"
         avatar_url:
           type: string
           format: uri
@@ -524,7 +549,17 @@ components:
 
     Ticket:
       type: object
-      required: [id, workspace_id, title, status, priority, reporter_id, created_at, updated_at]
+      required:
+        [
+          id,
+          workspace_id,
+          title,
+          status,
+          priority,
+          reporter_id,
+          created_at,
+          updated_at,
+        ]
       properties:
         id:
           type: string
@@ -538,9 +573,9 @@ components:
         description:
           type: string
         status:
-          $ref: '#/components/schemas/TicketStatus'
+          $ref: "#/components/schemas/TicketStatus"
         priority:
-          $ref: '#/components/schemas/TicketPriority'
+          $ref: "#/components/schemas/TicketPriority"
         assignee_id:
           type: string
           format: uuid
@@ -588,22 +623,20 @@ components:
           type: string
           minLength: 6
 
-    RegisterRequest:
+    # Substitua o RegisterRequest por este:
+    AcceptInviteRequest:
       type: object
-      required: [name, email, password]
+      required: [name, password, inviteToken]
       properties:
         name:
           type: string
           minLength: 1
-        email:
-          type: string
-          format: email
         password:
           type: string
           minLength: 6
-        role:
-          $ref: '#/components/schemas/UserRole'
-          default: user
+        inviteToken:
+          type: string
+          minLength: 1
 
     CreateTicketRequest:
       type: object
@@ -618,7 +651,7 @@ components:
         description:
           type: string
         priority:
-          $ref: '#/components/schemas/TicketPriority'
+          $ref: "#/components/schemas/TicketPriority"
           default: medium
         assignee_id:
           type: string
@@ -634,9 +667,9 @@ components:
         description:
           type: string
         status:
-          $ref: '#/components/schemas/TicketStatus'
+          $ref: "#/components/schemas/TicketStatus"
         priority:
-          $ref: '#/components/schemas/TicketPriority'
+          $ref: "#/components/schemas/TicketPriority"
         assignee_id:
           type: string
           format: uuid

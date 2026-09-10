@@ -4,11 +4,13 @@ import { workspaceHandlers } from './routes/workspaces';
 import { ticketHandlers } from './routes/tickets';
 import { worklogHandlers } from './routes/worklogs';
 import { reportHandlers } from './routes/reports';
+import { inviteHandlers } from './routes/invites';
 
 export const worker = setupWorker(
   ...authHandlers,
   ...workspaceHandlers,
   ...ticketHandlers,
   ...worklogHandlers,
-  ...reportHandlers
+  ...reportHandlers,
+  ...inviteHandlers
 );
