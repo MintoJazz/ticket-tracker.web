@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
-export default function LoginPage() {
+export function LoginPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const { login } = authService;
     const navigate = useNavigate()
