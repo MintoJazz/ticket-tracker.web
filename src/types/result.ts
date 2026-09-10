@@ -2,10 +2,12 @@ export type Result<T, E = unknown> =
     | {
         success: true
         data: T
+        error?: never
     }
     | {
         success: false
         error: E
+        data?: never
     }
 
 export const success = <T>(data: T): Result<T> => ({
