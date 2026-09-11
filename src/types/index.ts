@@ -25,6 +25,7 @@ import {
   GetTicketsResponseSchema,
   WorklogResponseSchema,
   GetWorklogsResponseSchema,
+  DashboardMetricsSchema,
 } from '../schemas';
 
 // ==========================================
@@ -53,6 +54,7 @@ export type GetInviteResponse = z.infer<typeof GetInviteResponseSchema>;
 export type AcceptInviteResponse = z.infer<typeof AcceptInviteResponseSchema>;
 
 export type DashboardResponse = z.infer<typeof DashboardResponseSchema>;
+export type DashboardMetricKey = keyof z.infer<typeof DashboardMetricsSchema>;
 export type RankingResponse = z.infer<typeof RankingResponseSchema>;
 
 export type LoginResponse = z.infer<typeof LoginResponseSchema>;
