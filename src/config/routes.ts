@@ -12,6 +12,11 @@ import type { RouteObject } from "react-router";
 import DashboardPage from "@/pages/dashboard/page";
 import { dashoardLoader } from "@/pages/dashboard/loader";
 
+import { TicketsPage } from "@/pages/tickets/page";
+import { TicketsLoading } from "@/pages/tickets/loading";
+import { TicketsError } from "@/pages/tickets/error";
+import { ticketsLoader } from "@/pages/tickets/loader";
+
 export const routes: RouteObject[] = [
     {
         path: '/',
@@ -24,6 +29,13 @@ export const routes: RouteObject[] = [
                 index: true,
                 loader: dashoardLoader,
                 Component: DashboardPage
+            },
+            {
+                path: 'tickets',
+                loader: ticketsLoader,
+                Component: TicketsPage,
+                ErrorBoundary: TicketsError,
+                HydrateFallback: TicketsLoading,
             }
         ]
     },
