@@ -1,30 +1,9 @@
 import { LoginForm } from "@/components/auth/login-form";
 import { FieldDescription } from "@/components/ui/field";
-import { authService } from "@/services/auth.service"
-import type { LoginPayload } from "@/types";
-import { useState } from "react";
-import { useNavigate } from "react-router";
-import { toast } from "sonner";
+import { useLoginPage } from "@/hooks/use-login-page";
 
 export function LoginPage() {
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const { login } = authService;
-    const navigate = useNavigate()
-
-    async function handleLogin(values: LoginPayload) {
-        setIsSubmitting(true)
-
-        const response = await login(values)
-
-        if (response.success) {
-            toast.success("Login realizado com sucesso")
-            navigate("/")
-        } else {
-            toast.error("Credenciais inválidas")
-            console.log("Credenciais inválidas", response.error);
-        }
-        setIsSubmitting(false)
-    }
+    const { isSubmitting, handleLogin } = useLoginPage()
 
     return (
         <div className="flex flex-col gap-6">

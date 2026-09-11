@@ -1,16 +1,10 @@
-import { useLoaderData } from "react-router";
 import { KpiCard } from "@/components/reports/kpi-component";
 import { OperatorRankingTable } from "@/components/reports/operator-ranking-table";
-import type { DashboardResponse, RankingResponse, DashboardMetricKey } from "@/types";
 import { DASHBOARD_METRICS_THEMES } from "@/themes/dashboard-metrics";
+import { useDashboardPage } from "@/hooks/use-dashboard-page";
 
 export default function DashboardPage() {
-    const { metrics, ranking } = useLoaderData() as {
-        metrics: DashboardResponse['metrics'],
-        ranking: RankingResponse['ranking']
-    };
-
-    const metricKeys: DashboardMetricKey[] = ['total', 'open', 'in_progress', 'resolved'];
+    const { metrics, ranking, metricKeys } = useDashboardPage();
 
     return (
         <div className="flex flex-col gap-6 p-6 w-full">

@@ -4,7 +4,7 @@ import { toast } from "sonner"
 import { inviteService } from "@/services/invite.service"
 import type { AcceptInvitePayload, GetInviteResponse } from "@/types"
 
-export function usePage() {
+export function useAcceptInvitePage() {
     const { inviteData, token } = useLoaderData<{ inviteData: GetInviteResponse; token: string }>()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const navigate = useNavigate()
