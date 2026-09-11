@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import type { User } from "@/types";
 import { useSidebarConfig } from "@/config/sidebar";
 
@@ -48,11 +47,6 @@ export function AppHeader({ user }: AppHeaderProps) {
             </div>
             
             <div className="ml-auto flex items-center gap-4">
-                <Button size="sm" className="hidden md:flex gap-2">
-                    <Plus className="size-4" />
-                    <span>Nova Demanda</span>
-                </Button>
-
                 <DropdownMenu>
                     <DropdownMenuTrigger render={<Button variant="ghost" className="relative h-8 w-8 rounded-full" />}>
                         <Avatar className="h-8 w-8">
