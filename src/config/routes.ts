@@ -1,4 +1,3 @@
-import App from "@/App";
 import PrivateLayout, { privateLoader } from "@/layouts/private-layout";
 import { PublicLayout } from "@/layouts/public-layout";
 import { GlobalError } from "@/components/global-error";
@@ -10,6 +9,8 @@ import { inviteLoader } from "@/pages/accept-invite/loader";
 import { AcceptInviteError } from "@/pages/accept-invite/error";
 import { AcceptInviteLoading } from "@/pages/accept-invite/loading";
 import type { RouteObject } from "react-router";
+import DashboardPage from "@/pages/dashboard/page";
+import { dashoardLoader } from "@/pages/dashboard/loader";
 
 export const routes: RouteObject[] = [
     {
@@ -21,7 +22,8 @@ export const routes: RouteObject[] = [
         children: [
             {
                 index: true,
-                Component: App
+                loader: dashoardLoader,
+                Component: DashboardPage
             }
         ]
     },
