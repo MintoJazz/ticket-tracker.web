@@ -8,21 +8,21 @@ import {
     EmptyContent
 } from "@/components/ui/empty";
 
-export function AcceptInviteError() {
+export function DashboardError() {
     const error = useRouteError();
 
     return (
-        <Empty className="bg-destructive/10 text-destructive border-solid max-w-md mx-auto mt-8">
+        <Empty className="bg-destructive/10 text-destructive border-solid max-w-2xl mx-auto mt-8">
             <EmptyMedia variant="icon">
                 <AlertCircle className="text-destructive" />
             </EmptyMedia>
-            <EmptyTitle>Erro ao carregar o convite</EmptyTitle>
+            <EmptyTitle>Erro ao carregar o dashboard</EmptyTitle>
             <EmptyDescription className="text-destructive/80">
-                {error instanceof Error ? error.message : "Ocorreu um erro inesperado ao verificar o convite."}
+                {error instanceof Error ? error.message : "Ocorreu um erro inesperado ao carregar as métricas."}
             </EmptyDescription>
             <EmptyContent>
-                <a href="/login" className="text-sm font-medium underline">
-                    Voltar para o login
+                <a href="/dashboard" className="text-sm font-medium underline">
+                    Tentar novamente
                 </a>
             </EmptyContent>
         </Empty>
