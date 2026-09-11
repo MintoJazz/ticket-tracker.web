@@ -7,8 +7,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "./ui/table"
-import { RankingUserSchema } from "../schemas/report"
+} from "../ui/table"
+import { RankingUserSchema } from "../../schemas/report"
 
 export type RankingUser = z.infer<typeof RankingUserSchema>
 
