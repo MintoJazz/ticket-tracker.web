@@ -28,8 +28,8 @@ export function TicketForm({
         title: "",
         description: "",
         priority: "medium",
-        workspace_id: "",
-        assignee_id: "",
+        workspace_id: "w-1",
+        assignee_id: undefined,
         ...initialValues
     }
 

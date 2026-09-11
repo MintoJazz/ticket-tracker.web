@@ -42,7 +42,7 @@ export function EditTicketDialog({ ticket, open, onOpenChange, onSubmit }: EditT
         description: ticket.description || "",
         priority: ticket.priority,
         workspace_id: ticket.workspace_id,
-        assignee_id: ticket.assignee_id || "",
+        assignee_id: ticket.assignee_id || undefined,
       }
     : undefined
 

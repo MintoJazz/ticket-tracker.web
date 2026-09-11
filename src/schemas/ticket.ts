@@ -4,24 +4,24 @@ export const TicketPrioritySchema = z.enum(['low', 'medium', 'high', 'urgent']);
 export const TicketStatusSchema = z.enum(['open', 'in_progress', 'resolved', 'closed']);
 
 export const TicketSchema = z.object({
-    id: z.string().uuid(),
-    workspace_id: z.string().uuid(),
+    id: z.string(),
+    workspace_id: z.string(),
     title: z.string().min(1, 'Título é obrigatório'),
     description: z.string().optional(),
     status: TicketStatusSchema,
     priority: TicketPrioritySchema,
-    assignee_id: z.string().uuid().optional(),
-    reporter_id: z.string().uuid(),
+    assignee_id: z.string().optional(),
+    reporter_id: z.string(),
     created_at: z.string().datetime(),
     updated_at: z.string().datetime(),
 });
 
 export const CreateTicketSchema = z.object({
-    workspace_id: z.string().uuid(),
+    workspace_id: z.string(),
     title: z.string().min(1, 'Título é obrigatório'),
     description: z.string().optional(),
     priority: TicketPrioritySchema.default('medium'),
-    assignee_id: z.string().uuid().optional(),
+    assignee_id: z.string().optional(),
 });
 
 export const UpdateTicketSchema = z.object({
@@ -29,7 +29,7 @@ export const UpdateTicketSchema = z.object({
     description: z.string().optional(),
     status: TicketStatusSchema.optional(),
     priority: TicketPrioritySchema.optional(),
-    assignee_id: z.string().uuid().optional(),
+    assignee_id: z.string().optional(),
 });
 
 export const TicketResponseSchema = z.object({

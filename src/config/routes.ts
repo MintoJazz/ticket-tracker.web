@@ -12,10 +12,10 @@ import type { RouteObject } from "react-router";
 import DashboardPage from "@/pages/dashboard/page";
 import { dashoardLoader } from "@/pages/dashboard/loader";
 
-import { TicketsPage } from "@/pages/tickets/page";
 import { TicketsLoading } from "@/pages/tickets/loading";
 import { TicketsError } from "@/pages/tickets/error";
 import { ticketsLoader } from "@/pages/tickets/loader";
+import { TicketsPage } from "@/pages/tickets/page";
 
 export const routes: RouteObject[] = [
     {
