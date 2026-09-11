@@ -1,19 +1,7 @@
 import { type ColumnDef, type StockFeatures } from '@tanstack/react-table'
 import { type Ticket } from '@/types'
-
-const statusMap: Record<string, string> = {
-    open: 'Aberto',
-    in_progress: 'Em Progresso',
-    resolved: 'Resolvido',
-    closed: 'Fechado',
-}
-
-const priorityMap: Record<string, string> = {
-    low: 'Baixa',
-    medium: 'Média',
-    high: 'Alta',
-    urgent: 'Urgente',
-}
+import { ticketStatusTheme } from '@/themes/ticket'
+import { ticketPriorityTheme } from '@/themes/ticket-priority'
 
 export const ticketColumns: ColumnDef<StockFeatures, Ticket, any>[] = [
     {
@@ -25,7 +13,18 @@ export const ticketColumns: ColumnDef<StockFeatures, Ticket, any>[] = [
         header: 'Status',
         cell: ({ row }) => {
             const status = row.original.status
-            return statusMap[status] || status
+            const theme = ticketStatusTheme[status]
+
+            if (!theme) return status
+
+            const Icon = theme.icon
+
+            return (
+                <div className={`inline-flex items-center gap-1.5 text-xs font-medium ${theme.color}`}>
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{theme.label}</span>
+                </div>
+            )
         },
     },
     {
@@ -33,7 +32,18 @@ export const ticketColumns: ColumnDef<StockFeatures, Ticket, any>[] = [
         header: 'Prioridade',
         cell: ({ row }) => {
             const priority = row.original.priority
-            return priorityMap[priority] || priority
+            const theme = ticketPriorityTheme[priority]
+
+            if (!theme) return priority
+
+            const Icon = theme.icon
+
+            return (
+                <div className={`inline-flex items-center gap-1.5 text-xs font-medium ${theme.color}`}>
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{theme.label}</span>
+                </div>
+            )
         },
     },
     {
